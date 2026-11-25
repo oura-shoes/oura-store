@@ -122,27 +122,37 @@ window.addEventListener('error',e=>{const g=document.getElementById('grid');if(g
 const CURRENCY='د.ج';
 const ADMIN_PIN='2026';                 // غيّري رمز الإدارة هنا
 const EMAILJS={PUBLIC_KEY:'YOUR_PUBLIC_KEY',SERVICE_ID:'YOUR_SERVICE_ID',TEMPLATE_ID:'YOUR_TEMPLATE_ID'};
-const OWNER_EMAIL='sajidabouakkaz2005@gmail.com;  // بريد المالكة لخيار mailto
+const OWNER_EMAIL='sajidabouakkaz2005@gmail.com';  // بريدك: يُستعمل في mailto ويظهر للزبونة عند تأكيد الطلب
 /* مزامنة اختيارية مع Google Sheets: انشري الجدول كـ CSV ثم ضعي الرابط هنا،
    واستبدلي DEFAULT_PRODUCTS بنتيجة fetch(SHEET_CSV_URL).then(r=>r.text()) بعد تحويلها (مثلاً بـ split(',')) */
 const SHEET_CSV_URL='';
 
 const C=(n,hex,a=true,image='')=>({n,hex,available:a,image}); // image = صورة اللون (اختيارية)
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
+/* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes (مثلاً 36,37,38,39,40) */
 const DEFAULT_PRODUCTS=[
  {id:1,name:'Perla Bow',cat:'heels',price:3200,image:'images/white-heel-1.jpg',date:'2026-11-25',
   colors:[C('أبيض','#FFFFFF',true,'images/white-heel-1.jpg')],
-  sizes:S([36,37,38,39,40])},
+  sizes:S([36,37,38,39,40]),
+  stock:[[3,3,3,3,3]]},
  {id:2,name:'Perla Dots',cat:'heels',price:3200,image:'images/white-heel-2.jpg',date:'2026-11-24',
   colors:[C('أبيض','#FFFFFF',true,'images/white-heel-2.jpg')],
-  sizes:S([36,37,38,39,40])},
+  sizes:S([36,37,38,39,40]),
+  stock:[[3,3,3,3,3]]},
  {id:3,name:'Perla Lace',cat:'heels',price:3200,image:'images/white-heel-3.jpg',date:'2026-11-23',
   colors:[C('أبيض','#FFFFFF',true,'images/white-heel-3.jpg')],
-  sizes:S([36,37,38,39,40])}
+  sizes:S([36,37,38,39,40]),
+  stock:[[3,3,3,3,3]]}
 ];
-const DATA_VERSION=2; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
+const DATA_VERSION=3; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
 const CATS=[['all','الكل'],['heels','كعب'],['everyday','يومي'],['sandals','صندل'],['sneakers','سنيكرز'],['boots','بوت']];
 const catName=k=>(CATS.find(c=>c[0]===k)||[,k])[1];
+/* ===== المخزون: إذا لم يُحدَّد المخزون (فارغ/null) فالكمية غير محدودة ===== */
+const stq=(p,ci,si)=>{const v=p.stock&&p.stock[ci]&&p.stock[ci][si];return v==null?Infinity:+v};
+/* اللون يُعتبر منتهياً (×) تلقائياً إذا انتهت كل مقاساته */
+const cOK=(p,ci)=>p.colors[ci].available&&p.sizes.some((z,si)=>z.available&&stq(p,ci,si)>0);
+/* المقاس منتهٍ (×) إذا كان مخزونه 0 في اللون المختار (أو في كل الألوان قبل اختيار لون) */
+const sOK=(p,si,ci)=>p.sizes[si].available&&(ci==null?p.colors.some((c,i)=>c.available&&stq(p,i,si)>0):(p.colors[ci].available&&stq(p,ci,si)>0));
 
 /* ===== STATE ===== */
 const $=s=>document.querySelector(s);
@@ -167,8 +177,9 @@ function pills(){$('#pills').innerHTML=CATS.map(([k,n])=>`<button class="pill ${
 function colorOpts(){const set=[...new Set(products.flatMap(p=>p.colors.map(c=>c.n)))];const f=$('#fColor'),v=f.value;f.innerHTML='<option value="">كل الألوان</option>'+set.map(c=>`<option>${esc(c)}</option>`).join('');f.value=v}
 function picker(p){
  const s=sel[p.id]||{};
- return `<div class="lbl">اللون</div><div class="opts" data-pk="c${p.id}">${p.colors.map((c,i)=>`<button class="sw ${c.available?'':'x'} ${s.color===i?'on':''}" style="background:${esc(c.hex)}" title="${esc(c.n)}${c.available?'':' (غير متوفر)'}" aria-label="${esc(c.n)}" ${c.available?'':'disabled aria-disabled="true"'} data-pick="color" data-pid="${p.id}" data-i="${i}"></button>`).join('')}</div>
- <div class="lbl">المقاس</div><div class="opts" data-pk="s${p.id}">${p.sizes.map((z,i)=>`<button class="sz ${z.available?'':'x'} ${s.size===i?'on':''}" ${z.available?'':'disabled aria-disabled="true"'} aria-label="${z.s}${z.available?'':' غير متوفر'}" data-pick="size" data-pid="${p.id}" data-i="${i}">${z.s}</button>`).join('')}</div>`}
+ const left=(s.color!=null&&s.size!=null)?stq(p,s.color,s.size):Infinity;
+ return `<div class="lbl">اللون</div><div class="opts" data-pk="c${p.id}">${p.colors.map((c,i)=>{const ok=cOK(p,i);return `<button class="sw ${ok?'':'x'} ${s.color===i?'on':''}" style="background:${esc(c.hex)}" title="${esc(c.n)}${ok?'':' (غير متوفر)'}" aria-label="${esc(c.n)}" ${ok?'':'disabled aria-disabled="true"'} data-pick="color" data-pid="${p.id}" data-i="${i}"></button>`}).join('')}</div>
+ <div class="lbl">المقاس</div><div class="opts" data-pk="s${p.id}">${p.sizes.map((z,i)=>{const ok=sOK(p,i,s.color);return `<button class="sz ${ok?'':'x'} ${s.size===i?'on':''}" ${ok?'':'disabled aria-disabled="true"'} aria-label="${z.s}${ok?'':' غير متوفر'}" data-pick="size" data-pid="${p.id}" data-i="${i}">${z.s}</button>`}).join('')}</div>${left<=5?`<div class="lbl">المتوفر: ${left}</div>`:''}`}
 const imgSrc=(p,ci)=>(ci!=null&&p.colors[ci]&&p.colors[ci].image)||p.image||p.img||'';
 function imgHTML(p){const src=imgSrc(p,(sel[p.id]||{}).color);return `<div class="img" data-open="${p.id}" data-pid="${p.id}" role="button" tabindex="0" aria-label="تفاصيل ${esc(p.name)}"><img src="${esc(src)}" data-src="${esc(src)}" data-fb="${esc(p.image||p.img||'')}" alt="${esc(p.name)}" loading="lazy" ${src?'':'hidden'} onerror="if(this.dataset.fb&&!this.dataset.t&&this.src!==this.dataset.fb){this.dataset.t=1;this.src=this.dataset.fb}else this.hidden=true">OURA</div>`}
 /* تبديل صورة المنتج حسب اللون المختار (بطاقة + نافذة التفاصيل) مع تلاشي ناعم؛ يعود للصورة الرئيسية إن لم توجد صورة للون */
@@ -200,8 +211,9 @@ function add(pid){
   box.forEach(b=>{if(s.color==null)b.querySelector('[data-pk^=c]').classList.add('miss');if(s.size==null)b.querySelector('[data-pk^=s]').classList.add('miss')});
   return toast('اختاري اللون والمقاس أولاً');}
  const c=p.colors[s.color],z=p.sizes[s.size];
- if(!c.available||!z.available)return toast('الخيار غير متوفر');
+ if(!cOK(p,s.color)||!sOK(p,s.size,s.color))return toast('الخيار غير متوفر');
  const ex=cart.find(i=>i.pid==pid&&i.color===c.n&&i.size===z.s);
+ if((ex?ex.qty:0)+1>stq(p,s.color,s.size))return toast('الكمية المتوفرة: '+stq(p,s.color,s.size));
  ex?ex.qty++:cart.push({pid:p.id,color:c.n,size:z.s,qty:1});
  updCart();toast('أُضيف إلى السلة ✓');
 }
@@ -235,7 +247,7 @@ function valid(f){
 }
 function done(){
  cart=[];updCart();
- openSheet(`<div class="ok"><div style="font-size:42px">🤍</div><h2 style="justify-content:center">تم استلام طلبك</h2><p>سنتواصل معك قريباً عبر الهاتف أو البريد لتأكيد التوفر وتحديد مكان التسليم.</p><button class="btn" data-close>حسناً</button></div>`);
+ openSheet(`<div class="ok"><div style="font-size:42px">🤍</div><h2 style="justify-content:center">تم استلام طلبك</h2><p>سنتواصل معك قريباً عبر الهاتف أو البريد لتأكيد التوفر وتحديد مكان التسليم.</p><p style="margin-top:10px">للتواصل معنا مباشرة:<br><a href="mailto:${esc(OWNER_EMAIL)}" dir="ltr" style="color:var(--ink);font-weight:700">${esc(OWNER_EMAIL)}</a></p><button class="btn" data-close>حسناً</button></div>`);
 }
 async function sendOrder(){
  const {f,txt}=summary();if(!valid(f))return;
@@ -273,6 +285,7 @@ function adminView(){
  ${products.map(p=>`<div class="apr"><b>${esc(p.name)}</b> · ${fmt(p.price)} <button data-del="${p.id}" style="float:left;color:#a33">حذف</button>
  <div class="opts">${p.colors.map((c,i)=>`<button class="sw ${c.available?'':'x'}" style="background:${esc(c.hex)}" title="${esc(c.n)}" aria-label="تبديل ${esc(c.n)}" data-tg="c" data-pid="${p.id}" data-i="${i}"></button>`).join('')}</div>
  ${p.colors.map((c,i)=>`<input class="ci" dir="ltr" style="width:100%;margin:3px 0;padding:6px;border:1px solid var(--line);border-radius:6px;font-size:12px" placeholder="صورة اللون ${esc(c.n)}: images/..." aria-label="صورة اللون ${esc(c.n)}" value="${esc(c.image||'')}" data-cimg data-pid="${p.id}" data-i="${i}">`).join('')}
+ ${p.colors.map((c,ci)=>`<div class="lbl">المخزون — ${esc(c.n)} (اتركيه فارغاً = غير محدود)</div><div class="opts">${p.sizes.map((z,si)=>`<label style="font-size:11px;direction:ltr;text-align:center">${z.s}<input type="number" min="0" inputmode="numeric" style="width:50px;padding:5px;border:1px solid var(--line);border-radius:6px;display:block" value="${stq(p,ci,si)===Infinity?'':stq(p,ci,si)}" data-stk data-pid="${p.id}" data-ci="${ci}" data-si="${si}"></label>`).join('')}</div>`).join('')}
  <div class="opts">${p.sizes.map((z,i)=>`<button class="sz ${z.available?'':'x'}" data-tg="s" data-pid="${p.id}" data-i="${i}">${z.s}</button>`).join('')}</div></div>`).join('')}
  <h3 class="serif" style="margin-top:14px">إضافة حذاء جديد</h3>
  <div class="f"><label>الاسم</label><input id="nName"></div>
@@ -281,6 +294,7 @@ function adminView(){
  <div class="f"><label>مسار الصورة أو رابطها</label><input id="nImg" dir="ltr" placeholder="images/shoe.jpg"></div>
  <div class="f"><label>الألوان (اسم:#لون|صورة اختيارية، مفصولة بفاصلة)</label><input id="nCol" dir="ltr" placeholder="نود:#D4A392|images/a-nude.jpg, أسود:#1E1A19|images/a-black.jpg"></div>
  <div class="f"><label>المقاسات (مفصولة بفاصلة)</label><input id="nSz" dir="ltr" placeholder="36,37,38,39,40"></div>
+ <div class="f"><label>الكمية المتوفرة لكل لون ومقاس (فارغ = غير محدود)</label><input id="nStk" type="number" min="0" inputmode="numeric"></div>
  <button class="btn" id="aAdd">إضافة المنتج</button>`);
 }
 function persist(){save('oura_products',products);colorOpts();render()}
@@ -289,7 +303,8 @@ function addProduct(){
  const colors=$('#nCol').value.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const [a,im]=s.split('|');const [n,h]=a.split(':');return C(n.trim(),(h||'#cccccc').trim(),true,(im||'').trim())});
  const sizes=$('#nSz').value.split(',').map(s=>parseInt(s)).filter(Boolean).map(s=>({s,available:true}));
  if(!name||!price||!colors.length||!sizes.length)return toast('أكملي الاسم والسعر والألوان والمقاسات');
- products.push({id:Date.now(),name,cat:$('#nCat').value,price,img:$('#nImg').value.trim(),date:new Date().toISOString().slice(0,10),colors,sizes});
+ const q0=$('#nStk').value===''?null:Math.max(0,parseInt($('#nStk').value)||0);
+ products.push({id:Date.now(),name,cat:$('#nCat').value,price,stock:colors.map(()=>sizes.map(()=>q0)),img:$('#nImg').value.trim(),date:new Date().toISOString().slice(0,10),colors,sizes});
  persist();adminView();toast('تمت الإضافة ✓');
 }
 async function copyJSON(){
@@ -302,10 +317,10 @@ async function copyJSON(){
 document.addEventListener('click',e=>{
  const t=e.target.closest('button,[data-open]');if(!t)return;const d=t.dataset;
  if(d.cat){cat=d.cat;render()}
- else if(d.pick){const s=sel[d.pid]=sel[d.pid]||{};s[d.pick]=+d.i;refreshPick(d.pid);if(d.pick==='color')setImg(d.pid)}
+ else if(d.pick){const s=sel[d.pid]=sel[d.pid]||{};s[d.pick]=+d.i;if(d.pick==='color'&&s.size!=null&&!sOK(products.find(x=>x.id==d.pid),s.size,s.color))delete s.size;refreshPick(d.pid);if(d.pick==='color')setImg(d.pid)}
  else if(d.add)add(d.add);
  else if(d.open)quick(d.open);
- else if(d.q){const i=cart[d.q];i.qty+=+d.d;if(i.qty<1)cart.splice(d.q,1);updCart();cartView()}
+ else if(d.q){const i=cart[d.q];if(+d.d>0){const p=products.find(x=>x.id===i.pid);const mx=p?stq(p,p.colors.findIndex(c=>c.n===i.color),p.sizes.findIndex(z=>z.s===i.size)):Infinity;if(i.qty+1>mx)return toast('الكمية المتوفرة: '+mx)}i.qty+=+d.d;if(i.qty<1)cart.splice(d.q,1);updCart();cartView()}
  else if(d.tg){const p=products.find(x=>x.id==d.pid);const o=d.tg==='c'?p.colors[d.i]:p.sizes[d.i];o.available=!o.available;persist();adminView()}
  else if(d.del){if(confirm('حذف هذا المنتج؟')){products=products.filter(x=>x.id!=d.del);persist();adminView()}}
  else if(t.id==='send')sendOrder();
@@ -322,8 +337,8 @@ $('#mF').onclick=()=>tog('#filters');
 $('#cBtn').onclick=$('#mC').onclick=cartView;
 $('#admBtn').onclick=()=>{const p=prompt('أدخلي رمز الإدارة');if(p===null)return;p===ADMIN_PIN?adminView():toast('رمز غير صحيح')};
 ['#q','#fColor','#fMin','#fMax','#sort'].forEach(s=>$(s).addEventListener('input',render));
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.cimg===undefined)return;const p=products.find(x=>x.id==t.dataset.pid);p.colors[t.dataset.i].image=t.value.trim();save('oura_products',products);render();toast('تم حفظ صورة اللون ✓')});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.stk!==undefined){const p=products.find(x=>x.id==t.dataset.pid),ci=+t.dataset.ci,si=+t.dataset.si;p.stock=p.stock||[];p.stock[ci]=p.stock[ci]||[];p.stock[ci][si]=t.value===''?null:Math.max(0,parseInt(t.value)||0);persist();toast('تم حفظ المخزون ✓');return}if(t.dataset.cimg===undefined)return;const p=products.find(x=>x.id==t.dataset.pid);p.colors[t.dataset.i].image=t.value.trim();save('oura_products',products);render();toast('تم حفظ صورة اللون ✓')});
 colorOpts();render();updCart();
 </script>
 </body>
- </html>
+</html>

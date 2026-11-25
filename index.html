@@ -128,11 +128,226 @@ const SHEET_CSV_URL='';
 const C=(n,hex,a=true)=>({n,hex,available:a});
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
 const DEFAULT_PRODUCTS=[
- {id:1,name:'Aura Stiletto',cat:'heels',price:9800,img:'images/aura-stiletto.jpg',date:'2026-11-01',colors:[C('نود','#D4A392'),C('إسبريسو','#2C2220'),C('ذهبي','#C9A24D',false)],sizes:S([36,37,38,39,40],[36])},
- {id:2,name:'Soleil Flat',cat:'everyday',price:5200,img:'images/soleil-flat.jpg',date:'2026-10-20',colors:[C('كريمي','#EFE3D6'),C('نود','#D4A392')],sizes:S([36,37,38,39,40,41],[41])},
- {id:3,name:'Mira Sandal',cat:'sandals',price:6400,img:'images/mira-sandal.jpg',date:'2026-11-10',colors:[C('بيج','#CDB79E'),C('أسود','#1E1A19'),C('وردي','#E7B7B0',false)],sizes:S([37,38,39,40],[37])},
- {id:4,name:'Luna Sneaker',cat:'sneakers',price:7500,img:'images/luna-sneaker.jpg',date:'2026-09-15',colors:[C('أبيض','#FFFFFF'),C('نود','#D4A392')],sizes:S([36,37,38,39,40,41],[36,41])},
- {id:5,name:'Noor Boot',cat:'boots',price:12500,img:'images/noor-boot.jpg',date:'2026-11-18',colors:[C('بني','#5A3E36'),C('أسود','#1E1A19')],sizes:S([37,38,39,40],[39])}
+ {
+  "id": 1,
+  "name": "Aura Stiletto",
+  "cat": "heels",
+  "price": 9800,
+  "img": "images/aura-stiletto.jpg",
+  "date": "2026-11-01",
+  "colors": [
+   {
+    "n": "نود",
+    "hex": "#D4A392",
+    "available": true
+   },
+   {
+    "n": "إسبريسو",
+    "hex": "#2C2220",
+    "available": true
+   },
+   {
+    "n": "ذهبي",
+    "hex": "#C9A24D",
+    "available": false
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": false
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 2,
+  "name": "Soleil Flat",
+  "cat": "everyday",
+  "price": 5200,
+  "img": "images/soleil-flat.jpg",
+  "date": "2026-10-20",
+  "colors": [
+   {
+    "n": "كريمي",
+    "hex": "#EFE3D6",
+    "available": true
+   },
+   {
+    "n": "نود",
+    "hex": "#D4A392",
+    "available": true
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": true
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   },
+   {
+    "s": 41,
+    "available": false
+   }
+  ]
+ },
+ {
+  "id": 3,
+  "name": "Mira Sandal",
+  "cat": "sandals",
+  "price": 6400,
+  "img": "images/mira-sandal.jpg",
+  "date": "2026-11-10",
+  "colors": [
+   {
+    "n": "بيج",
+    "hex": "#CDB79E",
+    "available": true
+   },
+   {
+    "n": "أسود",
+    "hex": "#1E1A19",
+    "available": true
+   },
+   {
+    "n": "وردي",
+    "hex": "#E7B7B0",
+    "available": false
+   }
+  ],
+  "sizes": [
+   {
+    "s": 37,
+    "available": false
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 4,
+  "name": "Luna Sneaker",
+  "cat": "sneakers",
+  "price": 7500,
+  "img": "images/luna-sneaker.jpg",
+  "date": "2026-09-15",
+  "colors": [
+   {
+    "n": "أبيض",
+    "hex": "#FFFFFF",
+    "available": true
+   },
+   {
+    "n": "نود",
+    "hex": "#D4A392",
+    "available": true
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": false
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   },
+   {
+    "s": 41,
+    "available": false
+   }
+  ]
+ },
+ {
+  "id": 5,
+  "name": "Noor Boot",
+  "cat": "boots",
+  "price": 12500,
+  "img": "images/noor-boot.jpg",
+  "date": "2026-11-18",
+  "colors": [
+   {
+    "n": "بني",
+    "hex": "#5A3E36",
+    "available": true
+   },
+   {
+    "n": "أسود",
+    "hex": "#1E1A19",
+    "available": true
+   }
+  ],
+  "sizes": [
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": false
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ]
+ }
 ];
 const CATS=[['all','الكل'],['heels','كعب'],['everyday','يومي'],['sandals','صندل'],['sneakers','سنيكرز'],['boots','بوت']];
 const catName=k=>(CATS.find(c=>c[0]===k)||[,k])[1];

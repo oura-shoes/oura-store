@@ -132,25 +132,39 @@ const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,
 /* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes (مثلاً 36,37,38,39,40) */
 const DEFAULT_PRODUCTS=[
  {
-  "id": 1,
-  "name": "Perla Bow",
+  "id": 1795769026155,
+  "name": "J-04",
   "cat": "heels",
-  "price": 3200,
-  "image": "images/white-heel-1.jpg",
-  "date": "2026-11-25",
+  "price": 2900,
+  "stock": [
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "img": "image/J-04-p.jpg,image/J-04-B.jpg",
+  "date": "2026-11-27",
   "colors": [
    {
-    "n": "أبيض",
-    "hex": "#FFFFFF",
+    "n": "بيج",
+    "hex": "#D8B898",
     "available": true,
-    "image": "images/white-heel-1.jpg"
+    "image": "images/J-04-p.jpg"
+   },
+   {
+    "n": "أسود",
+    "hex": "#111111",
+    "available": true,
+    "image": "images/J-04-B.jpg"
    }
   ],
   "sizes": [
-   {
-    "s": 36,
-    "available": true
-   },
    {
     "s": 37,
     "available": true
@@ -162,118 +176,11 @@ const DEFAULT_PRODUCTS=[
    {
     "s": 39,
     "available": true
-   },
-   {
-    "s": 40,
-    "available": true
    }
-  ],
-  "stock": [
-   [
-    3,
-    3,
-    3,
-    3,
-    3
-   ]
   ]
  },
  {
-  "id": 2,
-  "name": "Perla Dots",
-  "cat": "heels",
-  "price": 3200,
-  "image": "images/white-heel-2.jpg",
-  "date": "2026-11-24",
-  "colors": [
-   {
-    "n": "أبيض",
-    "hex": "#FFFFFF",
-    "available": true,
-    "image": "images/white-heel-2.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 36,
-    "available": true
-   },
-   {
-    "s": 37,
-    "available": true
-   },
-   {
-    "s": 38,
-    "available": true
-   },
-   {
-    "s": 39,
-    "available": true
-   },
-   {
-    "s": 40,
-    "available": true
-   }
-  ],
-  "stock": [
-   [
-    3,
-    3,
-    3,
-    3,
-    3
-   ]
-  ]
- },
- {
-  "id": 3,
-  "name": "Perla Lace",
-  "cat": "heels",
-  "price": 3200,
-  "image": "images/white-heel-3.jpg",
-  "date": "2026-11-23",
-  "colors": [
-   {
-    "n": "أبيض",
-    "hex": "#FFFFFF",
-    "available": true,
-    "image": "images/white-heel-3.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 36,
-    "available": true
-   },
-   {
-    "s": 37,
-    "available": true
-   },
-   {
-    "s": 38,
-    "available": true
-   },
-   {
-    "s": 39,
-    "available": true
-   },
-   {
-    "s": 40,
-    "available": true
-   }
-  ],
-  "stock": [
-   [
-    3,
-    3,
-    3,
-    3,
-    3
-   ]
-  ]
- },
- {
-  "id": 1795767440646,
+  "id": 1795769258700,
   "name": "J-02",
   "cat": "heels",
   "price": 2900,
@@ -282,14 +189,41 @@ const DEFAULT_PRODUCTS=[
     1
    ]
   ],
-  "img": "J-02.jpg",
+  "img": "image/J-02.jpg",
   "date": "2026-11-27",
   "colors": [
    {
-    "n": "#F5F5DC",
-    "hex": "#cccccc",
+    "n": "بيج",
+    "hex": "#D8B898",
     "available": true,
-    "image": "بيج:#D8B898|images/J-02.jpg"
+    "image": "images/J-02.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 38,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 1795769424547,
+  "name": "J-03",
+  "cat": "heels",
+  "price": 2900,
+  "stock": [
+   [
+    1
+   ]
+  ],
+  "img": "image/J-03.jpg",
+  "date": "2026-11-27",
+  "colors": [
+   {
+    "n": "بني",
+    "hex": "#4E342E",
+    "available": true,
+    "image": "images/J-03.jpg"
    }
   ],
   "sizes": [
@@ -300,8 +234,8 @@ const DEFAULT_PRODUCTS=[
   ]
  },
  {
-  "id": 1795767546895,
-  "name": "J-03",
+  "id": 1795769526900,
+  "name": "J-05",
   "cat": "heels",
   "price": 2900,
   "stock": [
@@ -309,19 +243,19 @@ const DEFAULT_PRODUCTS=[
     1
    ]
   ],
-  "img": "J-03.jpg",
+  "img": "image/J-05.jpg",
   "date": "2026-11-27",
   "colors": [
    {
-    "n": "#4E342E",
-    "hex": "#cccccc",
+    "n": "بيج",
+    "hex": "#D8B898",
     "available": true,
-    "image": "4E342E#: images/J-03.jpg"
+    "image": "images/J-05.jpg"
    }
   ],
   "sizes": [
    {
-    "s": 37,
+    "s": 39,
     "available": true
    }
   ]

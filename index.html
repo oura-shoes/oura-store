@@ -122,14 +122,12 @@ window.addEventListener('error',e=>{const g=document.getElementById('grid');if(g
 const CURRENCY='د.ج';
 const ADMIN_PIN='2026';                 // غيّري رمز الإدارة هنا
 const EMAILJS={PUBLIC_KEY:'YOUR_PUBLIC_KEY',SERVICE_ID:'YOUR_SERVICE_ID',TEMPLATE_ID:'YOUR_TEMPLATE_ID'};
-const OWNER_EMAIL='oura.shoes.dz@gmail.com‬‏';  // بريدك: يُستعمل في mailto ويظهر للزبونة عند تأكيد الطلب
-/* مزامنة اختيارية مع Google Sheets: انشري الجدول كـ CSV ثم ضعي الرابط هنا،
-   واستبدلي DEFAULT_PRODUCTS بنتيجة fetch(SHEET_CSV_URL).then(r=>r.text()) بعد تحويلها (مثلاً بـ split(',')) */
+const OWNER_EMAIL='oura.shoes.dz@gmail.com';  // بريدك: يُستعمل في mailto ويظهر للزبونة عند تأكيد الطلب
 const SHEET_CSV_URL='';
 
 const C=(n,hex,a=true,image='')=>({n,hex,available:a,image}); // image = صورة اللون (اختيارية)
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
-/* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes (مثلاً 36,37,38,39,40) */
+/* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes */
 const DEFAULT_PRODUCTS=[
 {id:1795769026155,name:"J-04",cat:"heels",price:2900,img:"images/J-04-k.jpg",date:"2026-11-27",
  colors:[C("كاكي","#A68A64",true,"images/J-04-k.jpg"),C("أسود","#111111",true,"images/J-04-B.jpg")],
@@ -149,14 +147,14 @@ const DEFAULT_PRODUCTS=[
 {id:1795769700002,name:"J-07",cat:"heels",price:2900,img:"images/J-07.jpg",date:"2026-11-27",
  colors:[C("أسود","#111111",true,"images/J-07.jpg")],
  sizes:S([39]),stock:[[1]]}
-];const DATA_VERSION=4;const DATA_VERSION=3; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
+];const DATA_VERSION=4; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً
 const CATS=[['all','الكل'],['heels','كعب'],['everyday','يومي'],['sandals','صندل'],['sneakers','سنيكرز'],['boots','بوت']];
 const catName=k=>(CATS.find(c=>c[0]===k)||[,k])[1];
-/* ===== المخزون: إذا لم يُحدَّد المخزون (فارغ/null) فالكمية غير محدودة ===== */
+/* ===== المخزون: إذا لم يُحدَّد (فارغ/null) فالكمية غير محدودة ===== */
 const stq=(p,ci,si)=>{const v=p.stock&&p.stock[ci]&&p.stock[ci][si];return v==null?Infinity:+v};
-/* اللون يُعتبر منتهياً (×) تلقائياً إذا انتهت كل مقاساته */
+/* اللون منتهٍ (×) تلقائياً إذا انتهت كل مقاساته */
 const cOK=(p,ci)=>p.colors[ci].available&&p.sizes.some((z,si)=>z.available&&stq(p,ci,si)>0);
-/* المقاس منتهٍ (×) إذا كان مخزونه 0 في اللون المختار (أو في كل الألوان قبل اختيار لون) */
+/* المقاس منتهٍ (×) إذا مخزونه 0 في اللون المختار (أو في كل الألوان قبل اختيار لون) */
 const sOK=(p,si,ci)=>p.sizes[si].available&&(ci==null?p.colors.some((c,i)=>c.available&&stq(p,i,si)>0):(p.colors[ci].available&&stq(p,ci,si)>0));
 
 /* ===== STATE ===== */
@@ -187,7 +185,7 @@ function picker(p){
  <div class="lbl">المقاس</div><div class="opts" data-pk="s${p.id}">${p.sizes.map((z,i)=>{const ok=sOK(p,i,s.color);return `<button class="sz ${ok?'':'x'} ${s.size===i?'on':''}" ${ok?'':'disabled aria-disabled="true"'} aria-label="${z.s}${ok?'':' غير متوفر'}" data-pick="size" data-pid="${p.id}" data-i="${i}">${z.s}</button>`}).join('')}</div>${left<=5?`<div class="lbl">المتوفر: ${left}</div>`:''}`}
 const imgSrc=(p,ci)=>(ci!=null&&p.colors[ci]&&p.colors[ci].image)||p.image||p.img||'';
 function imgHTML(p){const src=imgSrc(p,(sel[p.id]||{}).color);return `<div class="img" data-open="${p.id}" data-pid="${p.id}" role="button" tabindex="0" aria-label="تفاصيل ${esc(p.name)}"><img src="${esc(src)}" data-src="${esc(src)}" data-fb="${esc(p.image||p.img||'')}" alt="${esc(p.name)}" loading="lazy" ${src?'':'hidden'} onerror="if(this.dataset.fb&&!this.dataset.t&&this.src!==this.dataset.fb){this.dataset.t=1;this.src=this.dataset.fb}else this.hidden=true">OURA</div>`}
-/* تبديل صورة المنتج حسب اللون المختار (بطاقة + نافذة التفاصيل) مع تلاشي ناعم؛ يعود للصورة الرئيسية إن لم توجد صورة للون */
+/* تبديل صورة المنتج حسب اللون المختار مع تلاشي ناعم */
 function setImg(pid){
  const p=products.find(x=>x.id==pid),src=imgSrc(p,(sel[pid]||{}).color);
  document.querySelectorAll(`.img[data-pid="${pid}"] img`).forEach(im=>{

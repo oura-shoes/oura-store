@@ -1,32 +1,5 @@
 [
   {
-    "id": 1795786834226,
-    "name": "J-08",
-    "cat": "heels",
-    "price": 2900,
-    "img": "images/J-08-1795786834226.jpg",
-    "date": "2026-11-27",
-    "colors": [
-      {
-        "n": "أبيض",
-        "hex": "#ffffff",
-        "available": true,
-        "image": "images/J-08-1795786834226-c1.jpg"
-      }
-    ],
-    "sizes": [
-      {
-        "s": 38,
-        "available": true
-      }
-    ],
-    "stock": [
-      [
-        1
-      ]
-    ]
-  },
-  {
     "id": 1795769026155,
     "name": "J-04",
     "cat": "heels",

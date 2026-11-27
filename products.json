@@ -1,0 +1,217 @@
+[
+  {
+    "id": 1795786834226,
+    "name": "J-08",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-08-1795786834226.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "أبيض",
+        "hex": "#ffffff",
+        "available": true,
+        "image": "images/J-08-1795786834226-c1.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 38,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769026155,
+    "name": "J-04",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-04-k.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "كاكي",
+        "hex": "#A68A64",
+        "available": true,
+        "image": "images/J-04-k.jpg"
+      },
+      {
+        "n": "أسود",
+        "hex": "#111111",
+        "available": true,
+        "image": "images/J-04-B.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 37,
+        "available": true
+      },
+      {
+        "s": 38,
+        "available": true
+      },
+      {
+        "s": 39,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769258700,
+    "name": "J-02",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-02.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "بيج",
+        "hex": "#D8B898",
+        "available": true,
+        "image": "images/J-02.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 37,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769424547,
+    "name": "J-03",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-03.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "بني داكن",
+        "hex": "#3E2A24",
+        "available": true,
+        "image": "images/J-03.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 37,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769526900,
+    "name": "J-05",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-05.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "بني",
+        "hex": "#4E342E",
+        "available": true,
+        "image": "images/J-05.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 39,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769600001,
+    "name": "J-06",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-06-B.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "أسود",
+        "hex": "#111111",
+        "available": true,
+        "image": "images/J-06-B.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 37,
+        "available": true
+      },
+      {
+        "s": 38,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "id": 1795769700002,
+    "name": "J-07",
+    "cat": "heels",
+    "price": 2900,
+    "img": "images/J-07.jpg",
+    "date": "2026-11-27",
+    "colors": [
+      {
+        "n": "أسود",
+        "hex": "#111111",
+        "available": true,
+        "image": "images/J-07.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "s": 39,
+        "available": true
+      }
+    ],
+    "stock": [
+      [
+        1
+      ]
+    ]
+  }
+]

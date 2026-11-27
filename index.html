@@ -131,18 +131,201 @@ const C=(n,hex,a=true,image='')=>({n,hex,available:a,image}); // image = صور�
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
 /* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes (مثلاً 36,37,38,39,40) */
 const DEFAULT_PRODUCTS=[
- {id:1,name:'Perla Bow',cat:'heels',price:3200,image:'images/white-heel-1.jpg',date:'2026-11-25',
-  colors:[C('أبيض','#FFFFFF',true,'images/white-heel-1.jpg')],
-  sizes:S([36,37,38,39,40]),
-  stock:[[3,3,3,3,3]]},
- {id:2,name:'Perla Dots',cat:'heels',price:3200,image:'images/white-heel-2.jpg',date:'2026-11-24',
-  colors:[C('أبيض','#FFFFFF',true,'images/white-heel-2.jpg')],
-  sizes:S([36,37,38,39,40]),
-  stock:[[3,3,3,3,3]]},
- {id:3,name:'Perla Lace',cat:'heels',price:3200,image:'images/white-heel-3.jpg',date:'2026-11-23',
-  colors:[C('أبيض','#FFFFFF',true,'images/white-heel-3.jpg')],
-  sizes:S([36,37,38,39,40]),
-  stock:[[3,3,3,3,3]]}
+ {
+  "id": 1,
+  "name": "Perla Bow",
+  "cat": "heels",
+  "price": 3200,
+  "image": "images/white-heel-1.jpg",
+  "date": "2026-11-25",
+  "colors": [
+   {
+    "n": "أبيض",
+    "hex": "#FFFFFF",
+    "available": true,
+    "image": "images/white-heel-1.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": true
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ],
+  "stock": [
+   [
+    3,
+    3,
+    3,
+    3,
+    3
+   ]
+  ]
+ },
+ {
+  "id": 2,
+  "name": "Perla Dots",
+  "cat": "heels",
+  "price": 3200,
+  "image": "images/white-heel-2.jpg",
+  "date": "2026-11-24",
+  "colors": [
+   {
+    "n": "أبيض",
+    "hex": "#FFFFFF",
+    "available": true,
+    "image": "images/white-heel-2.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": true
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ],
+  "stock": [
+   [
+    3,
+    3,
+    3,
+    3,
+    3
+   ]
+  ]
+ },
+ {
+  "id": 3,
+  "name": "Perla Lace",
+  "cat": "heels",
+  "price": 3200,
+  "image": "images/white-heel-3.jpg",
+  "date": "2026-11-23",
+  "colors": [
+   {
+    "n": "أبيض",
+    "hex": "#FFFFFF",
+    "available": true,
+    "image": "images/white-heel-3.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 36,
+    "available": true
+   },
+   {
+    "s": 37,
+    "available": true
+   },
+   {
+    "s": 38,
+    "available": true
+   },
+   {
+    "s": 39,
+    "available": true
+   },
+   {
+    "s": 40,
+    "available": true
+   }
+  ],
+  "stock": [
+   [
+    3,
+    3,
+    3,
+    3,
+    3
+   ]
+  ]
+ },
+ {
+  "id": 1795767440646,
+  "name": "J-02",
+  "cat": "heels",
+  "price": 2900,
+  "stock": [
+   [
+    1
+   ]
+  ],
+  "img": "J-02.jpg",
+  "date": "2026-11-27",
+  "colors": [
+   {
+    "n": "#F5F5DC",
+    "hex": "#cccccc",
+    "available": true,
+    "image": "بيج:#D8B898|images/J-02.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 37,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 1795767546895,
+  "name": "J-03",
+  "cat": "heels",
+  "price": 2900,
+  "stock": [
+   [
+    1
+   ]
+  ],
+  "img": "J-03.jpg",
+  "date": "2026-11-27",
+  "colors": [
+   {
+    "n": "#4E342E",
+    "hex": "#cccccc",
+    "available": true,
+    "image": "4E342E#: images/J-03.jpg"
+   }
+  ],
+  "sizes": [
+   {
+    "s": 37,
+    "available": true
+   }
+  ]
+ }
 ];
 const DATA_VERSION=3; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
 const CATS=[['all','الكل'],['heels','كعب'],['everyday','يومي'],['sandals','صندل'],['sneakers','سنيكرز'],['boots','بوت']];

@@ -131,136 +131,25 @@ const C=(n,hex,a=true,image='')=>({n,hex,available:a,image}); // image = صور�
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
 /* stock = المخزون: صف لكل لون، وعمود لكل مقاس بنفس ترتيب sizes (مثلاً 36,37,38,39,40) */
 const DEFAULT_PRODUCTS=[
- {
-  "id": 1795769026155,
-  "name": "J-04",
-  "cat": "heels",
-  "price": 2900,
-  "stock": [
-   [
-    1,
-    1,
-    1
-   ],
-   [
-    0,
-    0,
-    1
-   ]
-  ],
-  "img": "image/J-04-p.jpg,image/J-04-B.jpg",
-  "date": "2026-11-27",
-  "colors": [
-   {
-    "n": "بيج",
-    "hex": "#D8B898",
-    "available": true,
-    "image": "images/J-04-k.jpg"
-   },
-   {
-    "n": "أسود",
-    "hex": "#111111",
-    "available": true,
-    "image": "images/J-04-B.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 37,
-    "available": true
-   },
-   {
-    "s": 38,
-    "available": true
-   },
-   {
-    "s": 39,
-    "available": true
-   }
-  ]
- },
- {
-  "id": 1795769258700,
-  "name": "J-02",
-  "cat": "heels",
-  "price": 2900,
-  "stock": [
-   [
-    1
-   ]
-  ],
-  "img": "image/J-02.jpg",
-  "date": "2026-11-27",
-  "colors": [
-   {
-    "n": "بيج",
-    "hex": "#D8B898",
-    "available": true,
-    "image": "images/J-02.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 38,
-    "available": true
-   }
-  ]
- },
- {
-  "id": 1795769424547,
-  "name": "J-03",
-  "cat": "heels",
-  "price": 2900,
-  "stock": [
-   [
-    1
-   ]
-  ],
-  "img": "image/J-03.jpg",
-  "date": "2026-11-27",
-  "colors": [
-   {
-    "n": "بني",
-    "hex": "#4E342E",
-    "available": true,
-    "image": "images/J-03.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 37,
-    "available": true
-   }
-  ]
- },
- {
-  "id": 1795769526900,
-  "name": "J-05",
-  "cat": "heels",
-  "price": 2900,
-  "stock": [
-   [
-    1
-   ]
-  ],
-  "img": "image/J-05.jpg",
-  "date": "2026-11-27",
-  "colors": [
-   {
-    "n": "بيج",
-    "hex": "#D8B898",
-    "available": true,
-    "image": "images/J-05.jpg"
-   }
-  ],
-  "sizes": [
-   {
-    "s": 39,
-    "available": true
-   }
-  ]
- }
-];const DATA_VERSION=3; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
+{id:1795769026155,name:"J-04",cat:"heels",price:2900,img:"images/J-04-k.jpg",date:"2026-11-27",
+ colors:[C("كاكي","#A68A64",true,"images/J-04-k.jpg"),C("أسود","#111111",true,"images/J-04-B.jpg")],
+ sizes:S([37,38,39]),stock:[[1,1,1],[0,0,1]]},
+{id:1795769258700,name:"J-02",cat:"heels",price:2900,img:"images/J-02.jpg",date:"2026-11-27",
+ colors:[C("بيج","#D8B898",true,"images/J-02.jpg")],
+ sizes:S([37]),stock:[[1]]},
+{id:1795769424547,name:"J-03",cat:"heels",price:2900,img:"images/J-03.jpg",date:"2026-11-27",
+ colors:[C("بني داكن","#3E2A24",true,"images/J-03.jpg")],
+ sizes:S([37]),stock:[[1]]},
+{id:1795769526900,name:"J-05",cat:"heels",price:2900,img:"images/J-05.jpg",date:"2026-11-27",
+ colors:[C("بني","#4E342E",true,"images/J-05.jpg")],
+ sizes:S([39]),stock:[[1]]},
+{id:1795769600001,name:"J-06",cat:"heels",price:2900,img:"images/J-06-B.jpg",date:"2026-11-27",
+ colors:[C("أسود","#111111",true,"images/J-06-B.jpg")],
+ sizes:S([37,38]),stock:[[1,1]]},
+{id:1795769700002,name:"J-07",cat:"heels",price:2900,img:"images/J-07.jpg",date:"2026-11-27",
+ colors:[C("أسود","#111111",true,"images/J-07.jpg")],
+ sizes:S([39]),stock:[[1]]}
+];const DATA_VERSION=4;const DATA_VERSION=3; // ارفعي الرقم كلما لصقتِ DEFAULT_PRODUCTS جديداً ليتجاهل المتصفح النسخة القديمة المخزنة
 const CATS=[['all','الكل'],['heels','كعب'],['everyday','يومي'],['sandals','صندل'],['sneakers','سنيكرز'],['boots','بوت']];
 const catName=k=>(CATS.find(c=>c[0]===k)||[,k])[1];
 /* ===== المخزون: إذا لم يُحدَّد المخزون (فارغ/null) فالكمية غير محدودة ===== */

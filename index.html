@@ -129,10 +129,10 @@ window.addEventListener('error',e=>{const g=document.getElementById('grid');if(g
 /* ===== CONFIG ===== */
 const CURRENCY='د.ج';
 const ADMIN_PIN='22012005';
-EMAILJS={PUBLIC_KEY:'JTGC4Gq0uCMrjnwb8',SERVICE_ID:'service_ijucjt7',TEMPLATE_ID:'template_paxfogy'};
-
+const EMAILJS={PUBLIC_KEY:'JTGC4Gq0uCMrjnwb8',SERVICE_ID:'service_ijucjt7',TEMPLATE_ID:'template_paxfogy'};
 const OWNER_EMAIL='oura.shoes.dz@gmail.com';
 const DEFAULT_GH={owner:'',repo:'oura-store',branch:'main'};
+const FB_URL='https://oura-store-1c676-default-rtdb.firebaseio.com';
 
 const C=(n,hex,a=true,image='')=>({n,hex,available:a,image});
 const S=(arr,off=[])=>[36,37,38,39,40,41].filter(s=>arr.includes(s)).map(s=>({s,available:!off.includes(s)}));
@@ -184,6 +184,109 @@ function closeSheet(){$('#ov').classList.remove('on')}
 $('#ov').addEventListener('click',e=>{if(e.target.id==='ov'||e.target.dataset.close!==undefined)closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
+/* ===== FIREBASE REALTIME STOCK SYNC ===== */
+function buildStockMap(list){
+ const map={};
+ list.forEach(p=>{
+  const pObj={};
+  p.colors.forEach((c,ci)=>{
+   const cObj={};
+   p.sizes.forEach((z,si)=>{
+    const q=stq(p,ci,si);
+    if(q!==Infinity)cObj[String(z.s)]=q;
+   });
+   if(Object.keys(cObj).length)pObj[c.n]=cObj;
+  });
+  if(Object.keys(pObj).length)map[String(p.id)]=pObj;
+ });
+ return map;
+}
+
+function applyStockMap(map){
+ if(!map||typeof map!=='object')return;
+ products.forEach(p=>{
+  const pStock=map[String(p.id)];
+  if(!pStock)return;
+  p.stock=p.stock||[];
+  p.colors.forEach((c,ci)=>{
+   p.stock[ci]=p.stock[ci]||[];
+   const cStock=pStock[c.n];
+   if(!cStock)return;
+   p.sizes.forEach((z,si)=>{
+    if(cStock[String(z.s)]!==undefined){
+     p.stock[ci][si]=Number(cStock[String(z.s)]);
+    }
+   });
+  });
+ });
+}
+
+async function syncStockFromFirebase(){
+ try{
+  const res=await fetch(`${FB_URL}/stock.json?t=${Date.now()}`,{cache:'no-store'});
+  if(!res.ok)return;
+  const data=await res.json();
+  if(data&&typeof data==='object'&&Object.keys(data).length){
+   applyStockMap(data);
+   save('oura_products_cache',products);
+   render();
+  }else{
+   await pushAllStockToFirebase();
+  }
+ }catch(e){}
+}
+
+async function pushAllStockToFirebase(){
+ const map=buildStockMap(products);
+ const res=await fetch(`${FB_URL}/stock.json`,{
+  method:'PUT',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify(map)
+ });
+ if(!res.ok)throw new Error('تعذر تحديث المخزون في Firebase');
+}
+
+async function verifyAndDeductFirebaseStock(){
+ const res=await fetch(`${FB_URL}/stock.json?t=${Date.now()}`,{cache:'no-store'});
+ if(!res.ok)return true;
+ const liveMap=(await res.json())||{};
+ applyStockMap(liveMap);
+
+ for(const item of cart){
+  const p=products.find(x=>x.id===item.pid);
+  if(!p)continue;
+  const ci=p.colors.findIndex(c=>c.n===item.color);
+  const si=p.sizes.findIndex(z=>z.s===item.size);
+  if(ci<0||si<0)continue;
+  const avail=stq(p,ci,si);
+  if(avail!==Infinity&&avail<item.qty){
+   render();
+   throw new Error(`عذراً، نفذت الكمية المطلوبة من (${p.name} - ${item.color} - مقاس ${item.size}). المتوفر حالياً: ${avail}`);
+  }
+ }
+
+ for(const item of cart){
+  const p=products.find(x=>x.id===item.pid);
+  if(!p)continue;
+  const ci=p.colors.findIndex(c=>c.n===item.color);
+  const si=p.sizes.findIndex(z=>z.s===item.size);
+  if(ci<0||si<0)continue;
+  const avail=stq(p,ci,si);
+  if(avail!==Infinity){
+   const nextVal=Math.max(0,avail-item.qty);
+   p.stock[ci][si]=nextVal;
+   await fetch(`${FB_URL}/stock/${encodeURIComponent(p.id)}/${encodeURIComponent(item.color)}/${encodeURIComponent(item.size)}.json`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(nextVal)
+   });
+  }
+ }
+ save('oura_products_cache',products);
+ render();
+ return true;
+}
+
 /* ===== LOAD PRODUCTS FROM products.json ===== */
 async function syncProductsFromRepo(){
  try{
@@ -197,6 +300,7 @@ async function syncProductsFromRepo(){
    }
   }
  }catch(e){}
+ await syncStockFromFirebase();
 }
 
 /* ===== GITHUB API HELPERS ===== */
@@ -286,6 +390,7 @@ async function publishProductsToGitHub(list,commitMsg,statusEl){
  await ghPutFile(gh,'products.json',b64,commitMsg,existing?existing.sha:null);
  products=list;
  save('oura_products_cache',products);
+ await pushAllStockToFirebase();
  colorOpts();render();
 }
 
@@ -366,14 +471,15 @@ function done(){
 }
 async function sendOrder(){
  const {f,txt}=summary();if(!valid(f))return;
- const ready=EMAILJS.PUBLIC_KEY!=='YOUR_PUBLIC_KEY'&&window.emailjs;
+ const ready=EMAILJS.PUBLIC_KEY&&window.emailjs;
  if(!ready){$('#err').textContent='لم يتم ضبط EmailJS بعد. انسخي ملخص الطلب وأرسليه لنا.';return}
- const b=$('#send');b.disabled=true;b.textContent='جارٍ الإرسال...';
+ const b=$('#send');b.disabled=true;b.textContent='جارٍ التحقق والإرسال...';
  try{
+  await verifyAndDeductFirebaseStock();
   emailjs.init({publicKey:EMAILJS.PUBLIC_KEY});
   await emailjs.send(EMAILJS.SERVICE_ID,EMAILJS.TEMPLATE_ID,{customer_name:f.n,customer_phone:f.p,customer_email:f.e,meeting_spot:f.m,order_details:txt,total:fmt(cartTotal())});
   done();
- }catch(err){b.disabled=false;b.textContent='إرسال الطلب';$('#err').textContent='تعذّر الإرسال. انسخي ملخص الطلب كبديل.'}
+ }catch(err){b.disabled=false;b.textContent='إرسال الطلب';$('#err').textContent=err.message||'تعذّر الإرسال. انسخي ملخص الطلب كبديل.'}
 }
 async function copyOrder(){
  const {f,txt}=summary();if(!valid(f))return;
@@ -387,7 +493,7 @@ function quick(pid){
  openSheet(`<h2>${esc(p.name)} <button data-close aria-label="إغلاق">✕</button></h2>${imgHTML(p).replace('data-open','data-x')}<div class="meta" style="margin:10px 0"><span>${catName(p.cat)}</span><span class="price">${fmt(p.price)}</span></div><div class="pick" data-box="${p.id}">${picker(p)}</div><button class="add btn" data-add="${p.id}">أضيفي إلى السلة</button>`);
 }
 
-/* ===== ADMIN (DIRECT GITHUB PUBLISH) ===== */
+/* ===== ADMIN (DIRECT GITHUB + FIREBASE LIVE STOCK) ===== */
 function colorRowHTML(name='',hex='#D4A392'){
  return `<div class="crow">
   <input type="text" class="c-name" placeholder="اسم اللون (مثال: بيج)" value="${esc(name)}">
@@ -426,8 +532,9 @@ function adminView(){
  <button class="btn" id="aPublish">نشر المنتج إلى المتجر (رفع إلى GitHub)</button>
 
  <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)">
- <h3 class="serif" style="margin-bottom:6px">إدارة المنتجات الحالية</h3>
- <button class="btn alt" id="aSyncNow">نشر تعديلات المخزون/الحذف الحالية إلى GitHub</button>
+ <h3 class="serif" style="margin-bottom:6px">إدارة المخزون والمنتجات الحالية</h3>
+ <button class="btn" id="fbSyncNow">⚡ حفظ وتحديث المخزون فوراً في Firebase</button>
+ <button class="btn alt" id="aSyncNow">نشر تعديلات المنتجات/الحذف إلى GitHub</button>
 
  ${products.map(p=>`<div class="apr"><b>${esc(p.name)}</b> · ${fmt(p.price)} <button data-del="${p.id}" style="float:left;color:#a33">حذف</button>
  <div class="opts">${p.colors.map((c,i)=>`<button class="sw ${c.available?'':'x'}" style="background:${esc(c.hex)}" title="${esc(c.n)}" aria-label="تبديل ${esc(c.n)}" data-tg="c" data-pid="${p.id}" data-i="${i}"></button>`).join('')}</div>
@@ -470,7 +577,6 @@ async function publishNewProduct(){
   const stamp=Date.now();
   const slug=name.replace(/[^a-zA-Z0-9_-]/g,'')||'item';
 
-  // 1. جلب أحدث قائمة منتجات من GitHub أولاً لتفادي الكتابة فوق أي منتج سابق
   showSt('1/3 جارٍ التحقق من المستودع...');
   const existingJson=await ghGetFile(gh,'products.json');
   let baseList=[...products];
@@ -481,13 +587,11 @@ async function publishNewProduct(){
    if(Array.isArray(parsed))baseList=parsed;
   }
 
-  // 2. تصغير ورفع الصورة الرئيسية
   showSt('2/3 جارٍ ضغط ورفع الصور إلى GitHub...');
   const mainB64=await shrinkImage(mainFile);
   const mainPath=`images/${slug}-${stamp}.jpg`;
   await ghPutFile(gh,mainPath,mainB64,`Upload ${mainPath}`);
 
-  // 3. رفع صور الألوان الإضافية إن وُجدت
   const colors=[];
   for(let i=0;i<rawColors.length;i++){
    const rc=rawColors[i];
@@ -515,12 +619,12 @@ async function publishNewProduct(){
 
   const updatedList=[newProd,...baseList];
 
-  // 4. تحديث products.json
-  showSt('3/3 جارٍ نشر المنتج في المتجر...');
+  showSt('3/3 جارٍ نشر المنتج وتحديث المخزون...');
   await ghPutFile(gh,'products.json',utf8ToB64(JSON.stringify(updatedList,null,2)),`Add product ${name}`,jsonSha);
 
   products=updatedList;
   save('oura_products_cache',products);
+  await pushAllStockToFirebase();
   colorOpts();render();
   toast('تم النشر بنجاح ✓ سيظهر للزبونات خلال دقيقة');
   adminView();
@@ -554,6 +658,14 @@ document.addEventListener('click',async e=>{
   adminView();
  }
  else if(t.id==='aPublish')publishNewProduct();
+ else if(t.id==='fbSyncNow'){
+  t.disabled=true;
+  try{
+   await pushAllStockToFirebase();
+   toast('تم تحديث المخزون في Firebase فوراً ✓');
+  }catch(err){toast(err.message||'خطأ في الاتصال بـ Firebase')}
+  finally{t.disabled=false}
+ }
  else if(t.id==='aSyncNow'){
   t.disabled=true;
   try{
@@ -579,7 +691,7 @@ document.addEventListener('change',e=>{
   p.stock=p.stock||[];p.stock[ci]=p.stock[ci]||[];
   p.stock[ci][si]=t.value===''?null:Math.max(0,parseInt(t.value)||0);
   save('oura_products_cache',products);colorOpts();render();
-  toast('تم حفظ المخزون محلياً — اضغطي نشر التعديلات');
+  toast('تم التعديل — اضغطي ⚡ حفظ المخزون في Firebase');
  }
 });
 
